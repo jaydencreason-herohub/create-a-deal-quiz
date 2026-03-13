@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HubSpot: Create a Deal | Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #dff2f0;
+    --teal: #0d7377;
+    --teal-dark: #095e61;
+    --teal-light: #14a085;
+    --teal-pale: #c2e8e5;
+    --white: #ffffff;
+    --text: #1a2e2e;
+    --text-muted: #4a7070;
+    --border: #b8dbd8;
+    --correct: #1a9e3f;
+    --correct-bg: #d4f5de;
+    --incorrect: #c0392b;
+    --incorrect-bg: #fde8e6;
+    --reveal-bg: #e8f7f5;
+    --radius: 16px;
+    --card-radius: 20px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px 80px;
+  }
+
+  .container { max-width: 680px; margin: 0 auto; }
+
+  .header { text-align: center; margin-bottom: 36px; }
+
+  .badge {
+    display: inline-block;
+    background: var(--teal);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 7px 18px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-size: clamp(36px, 7vw, 58px);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--teal);
+    margin-bottom: 16px;
+  }
+
+  h1 span { color: var(--teal-light); }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.65;
+    max-width: 440px;
+    margin: 0 auto;
+  }
+
+  .progress-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--teal);
+  }
+
+  .progress-bar-wrap {
+    background: var(--teal-pale);
+    border-radius: 100px;
+    height: 5px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--teal);
+    border-radius: 100px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+  }
+
+  .question-card {
+    background: var(--white);
+    border-radius: var(--card-radius);
+    padding: 32px 28px 28px;
+    box-shadow: 0 2px 16px rgba(13,115,119,0.08);
+    animation: fadeUp 0.35s ease forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal-light);
+    margin-bottom: 10px;
+  }
+
+  .q-text {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.5;
+    color: var(--text);
+    margin-bottom: 24px;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: border-color 0.18s, background 0.18s, transform 0.15s;
+    text-align: left;
+    width: 100%;
+  }
+
+  .option:hover:not(.locked) {
+    border-color: var(--teal);
+    background: var(--reveal-bg);
+    transform: translateX(3px);
+  }
+
+  .option.locked { cursor: default; }
+
+  .option-letter {
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text-muted);
+    transition: all 0.18s;
+  }
+
+  .option-text { font-size: 14px; font-weight: 600; line-height: 1.45; color: var(--text); }
+
+  .option.selected-correct { border-color: var(--correct); background: var(--correct-bg); }
+  .option.selected-correct .option-letter { background: var(--correct); border-color: var(--correct); color: #fff; }
+
+  .option.selected-incorrect { border-color: var(--incorrect); background: var(--incorrect-bg); }
+  .option.selected-incorrect .option-letter { background: var(--incorrect); border-color: var(--incorrect); color: #fff; }
+
+  .option.reveal-correct { border-color: var(--correct); background: var(--correct-bg); }
+  .option.reveal-correct .option-letter { background: var(--correct); border-color: var(--correct); color: #fff; }
+
+  .feedback {
+    margin-top: 18px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.6;
+    display: none;
+  }
+
+  .feedback.correct { display: block; background: var(--correct-bg); color: #145c28; border-left: 4px solid var(--correct); }
+  .feedback.incorrect { display: block; background: var(--incorrect-bg); color: #922b21; border-left: 4px solid var(--incorrect); }
+
+  .feedback strong {
+    display: block;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    font-weight: 800;
+  }
+
+  .next-btn {
+    display: none;
+    margin-top: 20px;
+    width: 100%;
+    background: var(--teal);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 15px 24px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.15s, box-shadow 0.18s;
+  }
+
+  .next-btn:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(13,115,119,0.25); }
+  .next-btn.visible { display: block; }
+
+  .score-screen { animation: fadeUp 0.4s ease forwards; }
+
+  .score-card {
+    background: var(--white);
+    border-radius: var(--card-radius);
+    padding: 40px 32px;
+    text-align: center;
+    box-shadow: 0 2px 16px rgba(13,115,119,0.08);
+    margin-bottom: 20px;
+  }
+
+  .score-ring { position: relative; width: 160px; height: 160px; margin: 0 auto 24px; }
+  .score-ring svg { transform: rotate(-90deg); }
+  .score-ring-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .score-number { font-size: 52px; font-weight: 900; line-height: 1; color: var(--teal); }
+  .score-denom { font-size: 13px; font-weight: 700; color: var(--text-muted); margin-top: 2px; }
+  .score-grade { font-size: 28px; font-weight: 900; color: var(--teal); margin-bottom: 10px; }
+  .score-msg { font-size: 14px; font-weight: 600; color: var(--text-muted); line-height: 1.65; max-width: 400px; margin: 0 auto 28px; }
+
+  .stats-row { display: flex; gap: 12px; justify-content: center; margin-bottom: 28px; }
+  .stat-box { flex: 1; max-width: 120px; background: var(--bg); border-radius: 12px; padding: 16px 12px; }
+  .stat-number { font-size: 28px; font-weight: 900; color: var(--teal); }
+  .stat-number.wrong { color: var(--incorrect); }
+  .stat-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .breakdown-card { background: var(--white); border-radius: var(--card-radius); overflow: hidden; box-shadow: 0 2px 16px rgba(13,115,119,0.08); margin-bottom: 20px; }
+  .breakdown-header { padding: 14px 24px; background: var(--teal); color: #fff; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+  .breakdown-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 24px; border-bottom: 1px solid var(--bg); font-size: 13px; }
+  .breakdown-item:last-child { border-bottom: none; }
+  .bd-icon { flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; margin-top: 1px; }
+  .bd-icon.c { background: var(--correct-bg); color: var(--correct); }
+  .bd-icon.i { background: var(--incorrect-bg); color: var(--incorrect); }
+  .bd-q { font-weight: 700; color: var(--text); }
+  .bd-a { font-weight: 600; color: var(--text-muted); margin-top: 3px; }
+
+  .restart-btn { width: 100%; background: transparent; border: 2px solid var(--teal); color: var(--teal); border-radius: var(--radius); padding: 14px 24px; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800; cursor: pointer; transition: all 0.18s; }
+  .restart-btn:hover { background: var(--teal); color: #fff; }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header" id="quizHeader">
+    <div class="badge">Herohub Training</div>
+    <h1>Create<br><span>a Deal</span></h1>
+    <p class="subtitle">Test your knowledge of creating a deal in HubSpot — from where to start to every field that matters. 8 questions — let's see how ready you are.</p>
+  </div>
+
+  <div id="progressSection">
+    <div class="progress-row">
+      <span id="progressLabel">Question 1 of 8</span>
+      <span id="scoreLabel">Score: 0</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <div id="quizArea"></div>
+  <div id="scoreScreen" class="hidden"></div>
+
+</div>
+
+<script>
+const questions = [
+  {
+    category: "Question 1",
+    text: "In the video, the deal creation starts from a Company record (Weller Recreation) that shows Deals (0). Where exactly do you click to open the Create Deal panel?",
+    options: [
+      "The 'Actions' dropdown at the top of the Company record → 'Create deal'",
+      "The '+ Add' button next to 'Deals (0)' in the right-side panel of the Company record",
+      "The global '+' button in the HubSpot top navigation bar",
+      "Navigate to the Deals list view and use the 'Create deal' button there"
+    ],
+    correct: 1,
+    feedback: "The correct entry point is the '+ Add' button next to Deals (0) in the right-side panel of the Company record. This automatically associates the new deal with that company — a key advantage over creating a deal from the global nav, which requires manual association afterward."
+  },
+  {
+    category: "Question 2",
+    text: "When the Create Deal panel opens, HubSpot auto-populates the Deal name field with 'Weller Recreation - New Deal'. What should you do with this default name before proceeding?",
+    options: [
+      "Leave it as-is — HubSpot's auto-generated names are standardized and should not be changed",
+      "Delete it entirely and leave the field blank until the deal is further along",
+      "Update it to follow the correct naming convention: [Company Name] - [Product/Package], e.g. 'Weller Recreation - Herohub20'",
+      "Replace 'New Deal' with the contact's first name for a more personal touch"
+    ],
+    correct: 2,
+    feedback: "The auto-generated name 'Weller Recreation - New Deal' must be updated to the proper format: [Company Name] - [Product]. In the video, it becomes 'Weller Recreation - Herohub20'. A descriptive deal name is critical for pipeline clarity — 'New Deal' is meaningless when scanning dozens of records."
+  },
+  {
+    category: "Question 3",
+    text: "The Pipeline field in the Create Deal form defaults to 'DealerHero 20 Groups (Virtual)'. The video shows this being changed. What is the correct pipeline selected, and why does pipeline selection matter so much at deal creation?",
+    options: [
+      "It stays as 'DealerHero 20 Groups (Virtual)' — the default is always correct for new deals",
+      "It is changed to 'Herohub Pipeline' — the standard pipeline for all new business",
+      "It is changed to 'Herohub20 (In Person)' — because the deal type determines which pipeline stages and workflows apply",
+      "It is changed to 'Bootcamps' — because Weller Recreation was identified as a bootcamp prospect"
+    ],
+    correct: 2,
+    feedback: "The pipeline is changed to 'Herohub20 (In Person)'. Pipeline selection is critical because each pipeline has its own set of deal stages, automation workflows, and reporting logic. Putting a deal in the wrong pipeline means it follows the wrong process and may never surface in the right reports."
+  },
+  {
+    category: "Question 4",
+    text: "After selecting the pipeline, the Deal stage field must also be set. In the video, what deal stage is selected for this new deal, and what does choosing the right stage at creation communicate to the team?",
+    options: [
+      "'Form Submitted' — because that's always the default starting stage for any new deal",
+      "'Lead Nurturing' — because new deals haven't been fully qualified yet",
+      "'Execute' — indicating the deal has been discussed and is moving forward into active execution",
+      "'Qualified To Buy' — because the contact was already vetted before the deal was created"
+    ],
+    correct: 2,
+    feedback: "The deal stage is set to 'Execute', which signals that this isn't a cold lead — it's an active deal that's been discussed and is ready to move forward. Choosing the right stage at creation gives the team instant pipeline visibility and prevents a deal from being buried in an early stage it no longer belongs in."
+  },
+  {
+    category: "Question 5",
+    text: "The Create Deal form includes a 'Deal Setter' field. What is the purpose of this field and what happens if it's left blank?",
+    options: [
+      "It's a display-only field that auto-fills from the Deal Owner — leaving it blank has no impact",
+      "It identifies who originated or set the deal, which is used for commission tracking and attribution reporting — leaving it blank creates a gap in who gets credit",
+      "It sets the primary contact on the deal — leaving it blank means the deal has no associated contact",
+      "It is the same as Deal Owner and can be left blank if Deal Owner is already filled"
+    ],
+    correct: 1,
+    feedback: "Deal Setter tracks who originated or set the deal, separate from who owns and works it. This matters for internal attribution and commission tracking. If left blank, there's no record of who brought the deal in — a significant reporting gap, especially in teams where deal setting and deal closing are separate roles."
+  },
+  {
+    category: "Question 6",
+    text: "The Contract Duration field is visible in the Create Deal form. In the video, 'Annual' is selected. Why is accurately setting contract duration at deal creation important?",
+    options: [
+      "It's required by HubSpot to save the deal — the form won't submit without it",
+      "It drives revenue recognition, forecasting accuracy, and determines what billing workflows are triggered downstream",
+      "It is only relevant after the deal is closed — it has no impact during the active sales process",
+      "It automatically sets the Amount field based on your pricing tiers"
+    ],
+    correct: 1,
+    feedback: "Contract Duration (Annual vs Monthly) directly impacts how revenue is forecasted and how billing workflows are structured. Setting it correctly at deal creation — rather than fixing it after the fact — ensures the deal is counted accurately in pipeline reports and that the right billing process kicks off when the deal closes."
+  },
+  {
+    category: "Question 7",
+    text: "The Close date field in the video is set to 02/28/2026. What principle should guide how you set the close date when creating a deal, and what's the risk of leaving it blank or using a placeholder?",
+    options: [
+      "Always set it to exactly 90 days from today — that's the standard sales cycle length",
+      "Leave it blank — close dates are speculative and adding them creates false forecasting data",
+      "Set it to the best realistic estimate of when the deal will close; leaving it blank or using a far-future placeholder distorts pipeline forecasts and makes it impossible to prioritize active deals",
+      "Set it to today's date so the deal shows as urgent in the pipeline"
+    ],
+    correct: 2,
+    feedback: "The close date should reflect your best honest estimate of when the deal will close. Leaving it blank or using a placeholder like 12/31 throws off pipeline forecasting and makes it hard to see which deals actually need attention now. A realistic close date is one of the most valuable pipeline hygiene habits."
+  },
+  {
+    category: "Question 8",
+    text: "At the bottom of the Create Deal form, the Deal owner field is pre-filled with 'Jayden Creason'. In what scenario should you change this field, and what's the risk of leaving it assigned to the wrong person?",
+    options: [
+      "Never change it — HubSpot auto-assigns the correct owner based on territory rules",
+      "Change it if the deal was set or is being worked by a different team member; leaving it on the wrong owner means that person gets task notifications and credit for a deal they're not working",
+      "Always clear it at creation and assign it only after the deal reaches 'Qualified To Buy'",
+      "It only matters for closed deals — ownership during the active pipeline stage has no operational impact"
+    ],
+    correct: 1,
+    feedback: "Deal Owner drives task assignments, notifications, pipeline views, and performance reporting. If a deal is created on behalf of another rep or territory, the owner must be updated immediately. Leaving it on the wrong person means they receive irrelevant notifications and get credit — or blame — for deals they're not responsible for."
+  }
+];
+
+let currentQ = 0, score = 0, answered = [];
+const letters = ['A','B','C','D'];
+
+function renderQuestion(idx) {
+  const q = questions[idx];
+  document.getElementById('progressLabel').textContent = `Question ${idx + 1} of ${questions.length}`;
+  document.getElementById('scoreLabel').textContent = `Score: ${score}`;
+  document.getElementById('progressFill').style.width = ((idx / questions.length) * 100) + '%';
+
+  document.getElementById('quizArea').innerHTML = `
+    <div class="question-card">
+      <div class="q-label">${q.category}</div>
+      <p class="q-text">${q.text}</p>
+      <div class="options">
+        ${q.options.map((opt, i) => `
+          <button class="option" onclick="selectAnswer(${i})">
+            <span class="option-letter">${letters[i]}</span>
+            <span class="option-text">${opt}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="feedback" id="feedback"></div>
+      <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
+        ${idx < questions.length - 1 ? 'Next Question →' : 'See My Results →'}
+      </button>
+    </div>
+  `;
+}
+
+function selectAnswer(idx) {
+  const q = questions[currentQ];
+  const options = document.querySelectorAll('.option');
+  options.forEach(o => o.classList.add('locked'));
+
+  const isCorrect = idx === q.correct;
+  if (isCorrect) score++;
+  answered.push({ correct: isCorrect, correctText: q.options[q.correct], category: q.category });
+
+  options[idx].classList.add(isCorrect ? 'selected-correct' : 'selected-incorrect');
+  if (!isCorrect) options[q.correct].classList.add('reveal-correct');
+
+  const feedback = document.getElementById('feedback');
+  feedback.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+  feedback.innerHTML = `<strong>${isCorrect ? '✓ Correct' : '✗ Incorrect'}</strong>${q.feedback}`;
+
+  document.getElementById('nextBtn').classList.add('visible');
+  document.getElementById('scoreLabel').textContent = `Score: ${score}`;
+}
+
+function nextQuestion() {
+  currentQ++;
+  currentQ < questions.length ? renderQuestion(currentQ) : showScore();
+}
+
+function showScore() {
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('quizArea').innerHTML = '';
+  document.getElementById('progressSection').style.display = 'none';
+  document.getElementById('quizHeader').style.display = 'none';
+
+  const pct = Math.round((score / questions.length) * 100);
+  const wrong = questions.length - score;
+  const circ = 2 * Math.PI * 58;
+  const offset = circ - (pct / 100) * circ;
+
+  let grade, msg;
+  if (pct >= 87) {
+    grade = "Expert 🎉";
+    msg = "Outstanding. You have a strong command of the deal creation process — from pipeline and stage selection to close dates, contract duration, and deal ownership.";
+  } else if (pct >= 62) {
+    grade = "Proficient 👍";
+    msg = "Good foundation. Review the details around pipeline selection, the Deal Setter field, contract duration, and why close dates matter for forecasting accuracy.";
+  } else {
+    grade = "Needs Review 📖";
+    msg = "Several key areas need revisiting. Focus on deal naming conventions, pipeline vs stage selection, and the downstream impact of fields like Deal Owner, Contract Duration, and Close Date.";
+  }
+
+  const screen = document.getElementById('scoreScreen');
+  screen.classList.remove('hidden');
+  screen.innerHTML = `
+    <div class="score-screen">
+      <div class="score-card">
+        <div class="score-ring">
+          <svg width="160" height="160" viewBox="0 0 160 160">
+            <circle cx="80" cy="80" r="58" fill="none" stroke="#dff2f0" stroke-width="10"/>
+            <circle cx="80" cy="80" r="58" fill="none" stroke="#0d7377" stroke-width="10"
+              stroke-dasharray="${circ}" stroke-dashoffset="${offset}"
+              stroke-linecap="round" style="transition:stroke-dashoffset 1.2s ease 0.2s"/>
+          </svg>
+          <div class="score-ring-label">
+            <div class="score-number">${score}</div>
+            <div class="score-denom">of ${questions.length}</div>
+          </div>
+        </div>
+        <div class="score-grade">${grade}</div>
+        <p class="score-msg">${msg}</p>
+        <div class="stats-row">
+          <div class="stat-box"><div class="stat-number">${score}</div><div class="stat-label">Correct</div></div>
+          <div class="stat-box"><div class="stat-number wrong">${wrong}</div><div class="stat-label">Incorrect</div></div>
+          <div class="stat-box"><div class="stat-number">${pct}%</div><div class="stat-label">Score</div></div>
+        </div>
+      </div>
+      <div class="breakdown-card">
+        <div class="breakdown-header">Question Breakdown</div>
+        ${answered.map((a, i) => `
+          <div class="breakdown-item">
+            <div class="bd-icon ${a.correct ? 'c' : 'i'}">${a.correct ? '✓' : '✗'}</div>
+            <div>
+              <div class="bd-q">${a.category}</div>
+              ${!a.correct ? `<div class="bd-a">Correct answer: ${a.correctText}</div>` : ''}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <button class="restart-btn" onclick="restartQuiz()">↺ Try Again</button>
+    </div>
+  `;
+}
+
+function restartQuiz() {
+  currentQ = 0; score = 0; answered = [];
+  document.getElementById('scoreScreen').classList.add('hidden');
+  document.getElementById('progressSection').style.display = 'block';
+  document.getElementById('quizHeader').style.display = 'block';
+  renderQuestion(0);
+}
+
+renderQuestion(0);
+</script>
+</body>
+</html>
